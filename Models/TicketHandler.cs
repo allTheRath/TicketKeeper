@@ -27,8 +27,8 @@ namespace TicketKeeper.Models
 
         public void CreateTicket(Ticket ticket)
         {
-
             db.Tickets.Add(ticket);
+            db.SaveChanges();
         }
 
 

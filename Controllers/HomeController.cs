@@ -336,15 +336,15 @@ namespace TicketKeeper.Controllers
                 {
                     tickets.AddRange(GetTicketsForRoles(userId, "Admin"));
                 }
-                else if (roles.Contains("ProjectManager"))
+                if (roles.Contains("ProjectManager"))
                 {
                     tickets.AddRange(GetTicketsForRoles(userId, "ProjectManager"));
                 }
-                else if (roles.Contains("Developer"))
+                if (roles.Contains("Developer"))
                 {
                     tickets.AddRange(GetTicketsForRoles(userId, "Developer"));
                 }
-                else if (roles.Contains("Submitter"))
+                if (roles.Contains("Submitter"))
                 {
                     tickets.AddRange(GetTicketsForRoles(userId, "Submitter"));
                 }
@@ -365,26 +365,34 @@ namespace TicketKeeper.Controllers
             {
                 return RedirectToAction("Index");
             }
-            ViewBag.TicketPriorityId = new SelectList(db.TicketPriorities, "Id", "PriorityName");
-            ViewBag.ProjectId = new SelectList(db.Projects, "Id", "ProjectName");
-            ViewBag.TicketStatusId = new SelectList(db.TicketStatuses, "Id", "StatusName");
-            ViewBag.TicketTypeId = new SelectList(db.TicketTypes, "Id", "TypeName");
+            ViewBag.TicketPriorityId = new SelectList(db.TicketPriorities, "Id", "PriorityName", "PriorityName");
+            ViewBag.ProjectId = new SelectList(db.Projects, "Id", "ProjectName", "ProjectName");
+            ViewBag.TicketStatusId = new SelectList(db.TicketStatuses, "Id", "StatusName", "StatusName");
+            ViewBag.TicketTypeId = new SelectList(db.TicketTypes, "Id", "TypeName", "TypeName");
             return View();
         }
 
         [HttpPost, ActionName("CreateTickets")]
         [ValidateAntiForgeryToken]
-        public ActionResult CreatTicketConfirm([Bind(Include = "Id,Title,Discription,ProjectId,TicketTypeId,TicketPriorityId,TicketStatusId")] Ticket ticket)
+        public ActionResult CreatTicketConfirm([Bind(Include = "Id,Title,Discription,ProjectId,TicketTypeId,TicketPriorityId,TicketStatusId")] Ticket ticketRef)
         {
+            Ticket ticket = new Ticket();
             ticket.AssignedToUserId = "";
             ticket.Created = DateTime.Now;
             ticket.Updated = DateTime.Now;
             ticket.OwenerUserId = User.Identity.GetUserId();
+            ticket.Discription = ticketRef.Discription;
+            ticket.ProjectId = ticketRef.ProjectId;
+            ticket.TicketPriorityId = ticketRef.TicketPriorityId;
+            ticket.TicketStatusId = ticketRef.TicketStatusId;
+            ticket.TicketTypeId = ticketRef.TicketTypeId;
+            ticket.Title = ticketRef.Title;
+            
             TicketHandler.CreateTicket(ticket);
             return RedirectToAction("Index");
         }
 
-        public ActionResult EditTicket()
+        public ActionResult EditTicket(int? id)
         {
 
             return View();
