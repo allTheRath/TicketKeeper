@@ -1,0 +1,85 @@
+﻿@model TicketKeeper.Models.ApplicationUser
+@{
+    ViewBag.Title = "AssignRole";
+}
+
+<h4>
+    @Html.ActionLink("Dashboard", "Admin")
+</h4>
+
+<h4>AssignRole</h4>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+        <h4>Project</h4>
+        <hr />
+        <div class="form-group">
+            @Html.LabelFor(model => model.Id, "User", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("Id", new SelectList(ViewBag.users, "Id", "Email", "Email"), htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Id, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-10">
+                @Html.DropDownList("Name", new SelectList(ViewBag.RoleList), htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.Roles, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<h4>Unassigned Users:</h4>
+
+<ol>
+    @foreach (var email in ViewBag.UnassignedUsers)
+    {
+        <li>@email</li>
+    }
+</ol>
+
+<h4>Admin Emails:</h4>
+
+<ol>
+    @foreach (var email in ViewBag.Admins)
+    {
+        <li>@email</li>
+    }
+</ol>
+
+<h4>Project-Manager Emails:</h4>
+
+<ol>
+    @foreach (var email in ViewBag.ProjectManagers)
+    {
+        <li>@email</li>
+    }
+</ol>
+
+<h4>Developer Emails:</h4>
+
+<ol>
+    @foreach (var email in ViewBag.Developers)
+    {
+        <li>@email</li>
+    }
+</ol>
+
+<h4>Submmiter Emails:</h4>
+
+<ol>
+    @foreach (var email in ViewBag.Submitters)
+    {
+        <li>@email</li>
+    }
+</ol>

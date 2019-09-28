@@ -1,0 +1,86 @@
+﻿@model IEnumerable<TicketKeeper.Models.Project>
+
+<h4>
+    @Html.ActionLink("Create New", "CreateProject")
+</h4>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.ProjectManager.Email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ProjectName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ProjectDiscripTion)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProjectManager.Email)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProjectName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ProjectDiscripTion)
+            </td>
+            <td>
+                <h5>
+                    @Html.ActionLink("AddUser", "AddUserToProject", new { id = item.Id }) |
+                    @Html.ActionLink("RemoveUser", "RemoveUserFromProject", new { id = item.Id }) |
+                    @Html.ActionLink("Edit", "EditProject", new { id = item.Id }) |
+                    @Html.ActionLink("Details", "ProjectDetails", new { id = item.Id }) |
+                    @Html.ActionLink("Delete", "ArchiveProject", new { id = item.Id })
+                </h5>
+            </td>
+        </tr>
+    }
+
+</table>
+
+<h4>My Projects</h4>
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.ProjectManager.Email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ProjectName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ProjectDiscripTion)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in @ViewBag.MyProjects)
+    {
+        <tr>
+            <td>
+                @item.ProjectManager.Email
+            </td>
+            <td>
+                @item.ProjectName
+            </td>
+            <td>
+                @item.ProjectDiscripTion
+            </td>
+            <td>
+                <h5>
+                    @Html.ActionLink("AddUser", "AddUserToProject", new { id = item.Id }) |
+                    @Html.ActionLink("RemoveUser", "RemoveUserFromProject", new { id = item.Id }) |
+                    @Html.ActionLink("Edit", "EditProject", new { id = item.Id }) |
+                    @Html.ActionLink("Details", "ProjectDetails", new { id = item.Id }) |
+                    @Html.ActionLink("Delete", "ArchiveProject", new { id = item.Id })
+                </h5>
+            </td>
+        </tr>
+    }
+
+</table>

@@ -1,0 +1,29 @@
+﻿
+@{
+    ViewBag.Title = "ProjectManager";
+}
+
+<h4>ProjectManager : @ViewBag.Email</h4>
+
+
+<ol>
+    <li>
+        @Html.ActionLink("CreateProject", "CreateProject")
+    </li>
+    <li>
+        @Html.ActionLink("EditProject", "EditProject")
+    </li>
+    <li>
+        @Html.ActionLink("ProjectDetails", "ProjectDetails")
+    </li>
+    <li>
+        @Html.ActionLink("ArchiveProject", "ArchiveProject")
+    </li>
+    <li>
+        @Html.ActionLink("MyProjects", "MyProjects")
+    </li>
+    <li>
+        @Html.ActionLink("MyTickets", "MyTickets")
+    </li>
+
+</ol>

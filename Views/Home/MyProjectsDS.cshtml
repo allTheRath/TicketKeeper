@@ -1,0 +1,33 @@
+﻿@model IEnumerable<TicketKeeper.Models.Project>
+
+<h5>My Projects</h5>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.ProjectManager.Email)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ProjectName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.ProjectDiscripTion)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.ProjectManager.Email)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ProjectName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.ProjectDiscripTion)
+        </td>
+    </tr>
+}
+
+</table>
+<h5>@Html.ActionLink("Dashboard", "Index")</h5>

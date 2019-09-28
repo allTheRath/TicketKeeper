@@ -1,0 +1,36 @@
+﻿@model TicketKeeper.Models.Project
+
+<div>
+    <h4>Project Manager: @ViewBag.Email</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.ProjectManager.Email)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ProjectManager.Email)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ProjectName)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ProjectName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ProjectDiscripTion)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ProjectDiscripTion)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "EditProject", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "MyProjects")
+</p>

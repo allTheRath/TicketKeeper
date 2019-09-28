@@ -1,0 +1,13 @@
+﻿@model List<string>
+<div>
+    <h4>
+        User: @ViewBag.Email
+    </h4>
+</div>
+
+@foreach (string role in @ViewBag.Roles)
+{
+    <div>
+        @Html.ActionLink(role + "-Dashboard", role)
+    </div>
+}
