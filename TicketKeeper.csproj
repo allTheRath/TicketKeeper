@@ -255,9 +255,15 @@
     <Content Include="Views\Home\ChoseDashboard.cshtml" />
     <Content Include="Views\Home\MyTickets.cshtml" />
     <Content Include="Views\Home\CreateTickets.cshtml" />
+    <Content Include="Views\Home\AssignTickets.cshtml" />
+    <Content Include="Views\Home\EditTicket.cshtml" />
+    <Content Include="Views\Home\TicketDetails.cshtml" />
+    <Content Include="Views\Home\AddComments.cshtml" />
+    <Content Include="Views\Home\AddAttachment.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
+    <Folder Include="AttachedFile\" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="fonts\glyphicons-halflings-regular.woff2" />

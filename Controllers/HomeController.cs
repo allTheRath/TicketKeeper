@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNet.Identity;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -387,27 +388,230 @@ namespace TicketKeeper.Controllers
             ticket.TicketStatusId = ticketRef.TicketStatusId;
             ticket.TicketTypeId = ticketRef.TicketTypeId;
             ticket.Title = ticketRef.Title;
-            
+
             TicketHandler.CreateTicket(ticket);
             return RedirectToAction("Index");
         }
 
+        public ActionResult AssignTickets(int? id)
+        {
+            if (id == null || !User.Identity.IsAuthenticated || (!User.IsInRole("Admin") && !User.IsInRole("ProjectManager")))
+            {
+                return RedirectToAction("Index");
+            }
+
+            Ticket ticket = db.Tickets.Find(id);
+            ViewBag.ApplicationUserId = db.Users.ToList();
+
+            return View(ticket);
+        }
+        [HttpPost, ActionName("AssignTickets")]
+        [ValidateAntiForgeryToken]
+        public ActionResult AssignedTicketConfirm(int Id, string AssignedToUserId)
+        {
+            Ticket ticket = db.Tickets.Find(Id);
+            if (ticket == null || db.Users.Find(AssignedToUserId) == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            ticket.AssignedToUserId = AssignedToUserId;
+            ticket.Updated = DateTime.Now;
+            db.SaveChanges();
+            return RedirectToAction("MyTickets");
+        }
+
         public ActionResult EditTicket(int? id)
         {
+            string userId = User.Identity.GetUserId();
+            if (id == null || !User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index");
+            }
+            Ticket ticket = db.Tickets.Find(id);
+            ViewBag.TicketPriorityId = new SelectList(db.TicketPriorities, "Id", "PriorityName", "PriorityName");
+            ViewBag.ProjectId = new SelectList(db.Projects, "Id", "ProjectName", "ProjectName");
+            ViewBag.TicketStatusId = new SelectList(db.TicketStatuses, "Id", "StatusName", "StatusName");
+            ViewBag.TicketTypeId = new SelectList(db.TicketTypes, "Id", "TypeName", "TypeName");
+
+            if (User.IsInRole("Admin"))
+            {
+                ViewBag.CanChangeStatus = true;
+                return View(ticket);
+            }
+            else if (User.IsInRole("ProjectManager") && TicketHandler.IsTicketBelongToProjectManager(userId, ticket.Id))
+            {
+                ViewBag.CanChangeStatus = true;
+                return View(ticket);
+            }
+            else if (User.IsInRole("Developer") && TicketHandler.IsTicketBelongToDeveloper(userId, ticket.Id))
+            {
+                ViewBag.CanChangeStatus = false;
+                return View(ticket);
+            }
+            else if (User.IsInRole("Submitter") && TicketHandler.IsTicketBelongToSubmitter(userId, ticket.Id))
+            {
+                ViewBag.CanChangeStatus = false;
+                return View(ticket);
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
+        }
+        [HttpPost, ActionName("EditTicket")]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditTicketConfirm([Bind(Include = "Id,Title,Discription,TicketTypeId,TicketPriorityId,TicketStatusId")] Ticket ticketRef)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index");
+            }
+
+            TicketHandler.EditExistingTicket(ticketRef);
+
+            return RedirectToAction("MyTickets");
+        }
+
+
+        public ActionResult TicketDetails(int? id)
+        {
+            if (id == null)
+            {
+                return RedirectToAction("Index");
+            }
+            Ticket t = db.Tickets.Find(id);
+            TicketForJQuery ticketForJQueryOBJ = new TicketForJQuery();
+
+            ticketForJQueryOBJ.AssignedTo = t.AssignedToUserId != null && t.AssignedToUserId != "" ? db.Users.Find(t.AssignedToUserId).Email : "Not Assigned";
+            ticketForJQueryOBJ.Created = t.Created;
+            ticketForJQueryOBJ.Discription = t.Discription;
+            ticketForJQueryOBJ.OwenerUser = t.OwenerUser.Email;
+            ticketForJQueryOBJ.Priority = t.PriorityName.PriorityName;
+            ticketForJQueryOBJ.ProjectTitle = t.Project.ProjectName;
+            ticketForJQueryOBJ.Status = t.StatusName.StatusName;
+            ticketForJQueryOBJ.Title = t.Title;
+            ticketForJQueryOBJ.Type = t.TicketName.TypeName;
+            ticketForJQueryOBJ.Updated = t.Updated;
+            ticketForJQueryOBJ.Id = t.Id;
+
+            return View(ticketForJQueryOBJ);
+        }
+
+        public ActionResult AddComments(int? id)
+        {
+            if (id == null)
+            {
+                return RedirectToAction("Index");
+            }
+            Ticket t = db.Tickets.Find(id);
+            ViewBag.TicketTitle = t.Title;
+
 
             return View();
         }
 
-        public ActionResult TicketDetails()
+        [HttpPost, ActionName("AddComments")]
+        [ValidateAntiForgeryToken]
+        public ActionResult AddCommentsConfirm(int? id, [Bind(Include = "Id,Comment")] TicketComments ticketComment)
         {
+            if (id == null)
+            {
+                return RedirectToAction("Index");
+            }
+            Ticket t = db.Tickets.Find(id);
+            ticketComment.TicketId = t.Id;
+            ticketComment.UserId = User.Identity.GetUserId();
+            string userId = User.Identity.GetUserId();
+            if (User.IsInRole("Admin"))
+            {
+                TicketHandler.AddCommentToTicketForAdmin(ticketComment);
+            }
+            else if (User.IsInRole("ProjectManager"))
+            {
+                TicketHandler.AddCommentToTicketForProjectManager(ticketComment, userId);
+            }
+            else if (User.IsInRole("Developer"))
+            {
+                TicketHandler.AddCommentToTicketForDeveloper(ticketComment, userId);
+            }
+            else if (User.IsInRole("Submitter"))
+            {
+                TicketHandler.AddCommentToTicketForSubmitter(ticketComment, userId);
+            }
+
+
+            return RedirectToAction("MyTickets");
+        }
+
+        public ActionResult AddAttachment(int? id)
+        {
+            if (id == null)
+            {
+                return RedirectToAction("Index");
+            }
+            Ticket t = db.Tickets.Find(id);
+            ViewBag.TicketTitle = t.Title;
+
 
             return View();
         }
 
-        public ActionResult DeleteTicket()
+        [HttpPost, ActionName("AddAttachment")]
+        [ValidateAntiForgeryToken]
+        public ActionResult AddAttachmentConfirm(int? id, HttpPostedFileBase File, string Discription)
         {
+            if (id == null)
+            {
+                return RedirectToAction("Index");
+            }
+            Ticket t = db.Tickets.Find(id);
+            string userId = User.Identity.GetUserId();
+            bool confirmRole = false;
+            if (User.IsInRole("Admin"))
+            {
+                confirmRole = true;
+            }
+            else if (User.IsInRole("ProjectManager") && TicketHandler.IsTicketBelongToProjectManager(userId, t.Id))
+            {
+                confirmRole = true;
+            }
+            else if (User.IsInRole("Developer") && TicketHandler.IsTicketBelongToDeveloper(userId, t.Id))
+            {
+                confirmRole = true;
+            }
+            else if (User.IsInRole("Submitter") && TicketHandler.IsTicketBelongToSubmitter(userId, t.Id))
+            {
+                confirmRole = true;
+            }
+            else
+            {
+                return RedirectToAction("Index");
+            }
+            if (confirmRole == true)
+            {
+                TicketAttachments ticketAttachment = new TicketAttachments();
+                ticketAttachment.UserId = db.Users.Find(User.Identity.GetUserId()).Email;
+                ticketAttachment.Created = DateTime.Now;
+                ticketAttachment.Discription = Discription;
+                ticketAttachment.TicketId = t.Id;
 
-            return View();
+                string FileName = Path.GetFileName(File.FileName);
+                //string fileExtention = Path.GetExtension(File.FileName);
+
+                ticketAttachment.FilePath = "~/AttachedFile" + FileName;
+                var path = Path.Combine(Server.MapPath("~/AttachedFile"), FileName);
+                File.SaveAs(path);
+                if (ModelState.IsValid)
+                {
+
+                    db.TicketAttachments.Add(ticketAttachment);
+                    db.SaveChanges();
+                    return RedirectToAction("MyTickets");
+                }
+
+            }
+            return RedirectToAction("Index");
         }
 
     }

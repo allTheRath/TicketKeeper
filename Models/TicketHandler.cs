@@ -65,7 +65,7 @@ namespace TicketKeeper.Models
                 return new List<TicketForJQuery>();
             }
 
-            result.AddRange(db.Tickets.Where(t => db.Projects.Find(t.ProjectId).ApplicationUserId == userID).ToList());
+            result.AddRange(db.Tickets.ToList().Where(t => db.Projects.Find(t.ProjectId).ApplicationUserId == userID).ToList());
 
             var resultForPM = ConvertToTicketJQueryModel(result);
             return resultForPM;
@@ -184,7 +184,8 @@ namespace TicketKeeper.Models
             ticket.ForEach(t =>
             {
                 TicketForJQuery ticketForJQueryOBJ = new TicketForJQuery();
-                ticketForJQueryOBJ.AssignedTo = t.AssignedUser != null ? t.AssignedUser.Email : "Not Assigned";
+
+                ticketForJQueryOBJ.AssignedTo = t.AssignedToUserId != null && t.AssignedToUserId != "" ? db.Users.Find(t.AssignedToUserId).Email : "Not Assigned";
                 ticketForJQueryOBJ.Created = t.Created;
                 ticketForJQueryOBJ.Discription = t.Discription;
                 ticketForJQueryOBJ.OwenerUser = t.OwenerUser.Email;
@@ -258,19 +259,27 @@ namespace TicketKeeper.Models
             existingTicket.TicketName = ticket.TicketName;
             existingTicket.Discription = ticket.Discription;
             existingTicket.Updated = DateTime.Now;
+            existingTicket.TicketPriorityId = ticket.TicketPriorityId;
+            existingTicket.TicketTypeId = ticket.TicketTypeId;
+
+            if (ticket.TicketStatusId != 0)
+            {
+                existingTicket.TicketStatusId = ticket.TicketStatusId;
+            }
+
             db.SaveChanges();
         }
 
-        /// <summary>
-        /// Create ticket attachments
-        /// </summary>
-        /// <param name="attachments"></param>
-        public void CreateTicketAttachment(TicketAttachments attachments)
-        {
-            attachments.Created = DateTime.Now;
-            db.TicketAttachments.Add(attachments);
-            db.SaveChanges();
-        }
+        ///// <summary>
+        ///// Create ticket attachments
+        ///// </summary>
+        ///// <param name="attachments"></param>
+        //public void CreateTicketAttachment(TicketAttachments attachments)
+        //{
+        //    attachments.Created = DateTime.Now;
+        //    db.TicketAttachments.Add(attachments);
+        //    db.SaveChanges();
+        //}
 
         /// <summary>
         ///List comments, attachments per ticket 
@@ -330,11 +339,12 @@ namespace TicketKeeper.Models
         //Ticket Comments
 
 
+
         /// <summary>
         /// Administrators must be able to add Comments to any ticket
         /// </summary>
         /// <param name="ticket"></param>
-        public void AddCommentToTicket(TicketComments comment)
+        public void AddCommentToTicketForAdmin(TicketComments comment)
         {
             Ticket ticket = db.Tickets.Find(comment.TicketId);
             if (ticket == null)

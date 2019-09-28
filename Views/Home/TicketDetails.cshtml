@@ -1,0 +1,84 @@
+﻿@model TicketKeeper.Models.TicketForJQuery
+
+<div>
+    <h4>Ticket</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.OwenerUser)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.OwenerUser)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Priority)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Priority)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ProjectTitle)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ProjectTitle)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Status)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Status)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Created)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Created)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Discription)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Discription)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Updated)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Updated)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.AssignedTo)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.AssignedTo)
+        </dd>
+
+    </dl>
+</div>
+<h5>
+    @Html.ActionLink("Edit", "EditTicket", new { id = Model.Id }) |
+    @Html.ActionLink("Back to List", "MyTickets")
+</h5>

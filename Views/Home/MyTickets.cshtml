@@ -77,6 +77,9 @@
             </td>
             <td>
                 <h5>
+                    @Html.ActionLink("AddAttachment", "AddAttachment", new { id = item.Id }) |
+                    @Html.ActionLink("AddComment", "AddComments", new { id = item.Id }) |
+                    @Html.ActionLink("AssignTicket", "AssignTickets", new { id = item.Id }) |
                     @Html.ActionLink("Edit", "EditTicket", new { id = item.Id }) |
                     @Html.ActionLink("Details", "TicketDetails", new { id = item.Id }) |
                     @Html.ActionLink("Delete", "DeleteTicket", new { id = item.Id })
