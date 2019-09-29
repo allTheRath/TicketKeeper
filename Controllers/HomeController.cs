@@ -467,7 +467,7 @@ namespace TicketKeeper.Controllers
             {
                 return RedirectToAction("Index");
             }
-            Ticket existingticket = db.Tickets.Find(ticketRef);
+            Ticket existingticket = db.Tickets.Find(ticketRef.Id);
             AddHistoryObjTODatabase(ticketRef, existingticket);
 
             TicketHandler.EditExistingTicket(ticketRef);
@@ -525,6 +525,7 @@ namespace TicketKeeper.Controllers
             ticketComment.TicketId = t.Id;
             ticketComment.UserId = User.Identity.GetUserId();
             string userId = User.Identity.GetUserId();
+            ticketComment.Created = DateTime.Now;
             if (User.IsInRole("Admin"))
             {
                 TicketHandler.AddCommentToTicketForAdmin(ticketComment);
@@ -815,10 +816,7 @@ namespace TicketKeeper.Controllers
             if (flag == true)
             {
                 List<TicketHistory> ticketHistories = db.TicketHistories.Where(x => x.TicketId == id).ToList();
-                ticketHistories.ForEach(history =>
-                {
-                    history.UserId = db.Users.Find(history.UserId).Email;
-                });
+
                 return View(ticketHistories);
             }
             else
@@ -850,21 +848,21 @@ namespace TicketKeeper.Controllers
             {
                 CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), newTicket.Discription, oldTicket.Discription, "Discription ");
             }
-            if (oldTicket.TicketTypeId != newTicket.TicketTypeId)
+            if (newTicket.TicketTypeId != 0 && oldTicket.TicketTypeId != newTicket.TicketTypeId)
             {
-                CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), newTicket.TicketTypeId.ToString(), oldTicket.TicketTypeId.ToString(), "Ticket Type");
+                CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), db.TicketTypes.Find(newTicket.TicketTypeId).TypeName, db.TicketTypes.Find(oldTicket.TicketTypeId).TypeName, "Ticket Type");
             }
-            if (oldTicket.TicketPriorityId != newTicket.TicketPriorityId)
+            if (newTicket.TicketPriorityId != 0 && oldTicket.TicketPriorityId != newTicket.TicketPriorityId)
             {
-                CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), newTicket.TicketPriorityId.ToString(), oldTicket.TicketPriorityId.ToString(), "Ticket Priority");
+                CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), db.TicketPriorities.Find(newTicket.TicketPriorityId).PriorityName, db.TicketPriorities.Find(oldTicket.TicketPriorityId).PriorityName, "Ticket Priority");
             }
-            if (oldTicket.TicketStatusId != newTicket.TicketStatusId)
+            if (newTicket.TicketStatusId != 0 && oldTicket.TicketStatusId != newTicket.TicketStatusId)
             {
-                CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), newTicket.TicketStatusId.ToString(), oldTicket.TicketStatusId.ToString(), "Ticket Status");
+                CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), db.TicketStatuses.Find(newTicket.TicketStatusId).StatusName, db.TicketStatuses.Find(oldTicket.TicketStatusId).StatusName, "Ticket Status");
             }
-            if (oldTicket.AssignedToUserId != newTicket.AssignedToUserId)
+            if (newTicket.AssignedToUserId != null && oldTicket.AssignedToUserId != newTicket.AssignedToUserId)
             {
-                CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), newTicket.AssignedToUserId, oldTicket.AssignedToUserId, "Assigned User");
+                CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), db.Users.Find(newTicket.AssignedToUserId).Email, db.Users.Find(oldTicket.AssignedToUserId).Email, "Assigned User");
             }
         }
 
