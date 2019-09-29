@@ -1,0 +1,45 @@
+﻿@model IEnumerable<TicketKeeper.Models.TicketComments>
+
+<h5>
+    @Html.ActionLink("Create New", "MyTickets")
+</h5>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Ticket.Title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Comment)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Created)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UserId)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Ticket.Title)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Comment)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Created)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.UserId)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "EditComment", new { id=item.Id }) |
+            @Html.ActionLink("Details", "CommentDetails", new { id=item.Id }) 
+            @*@Html.ActionLink("Delete", "DeleteComment", new { id=item.Id })*@
+        </td>
+    </tr>
+}
+
+</table>

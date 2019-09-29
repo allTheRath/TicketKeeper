@@ -1,0 +1,174 @@
+ public static void FillShape(ref int[][] array, int numberToLookFor, int numberToFill)
+        {
+            Dictionary<int, int> pointAccurances = new Dictionary<int, int>();
+            // start point accurances..
+            Dictionary<int, int> endPointAccurances = new Dictionary<int, int>();
+            // End point accurances..
+            bool flag = false;
+            for (int i = 0; i < array.Length; i++)
+            {
+                for (int j = 0; j < array[i].Length; j++)
+                {
+                    if (array[i][j] == numberToLookFor)
+                    {
+                        if (!pointAccurances.ContainsKey(i))
+                        {
+                            pointAccurances.Add(i, j);
+                            //only first accurend points will be saved.
+                        }
+                        else
+                        {
+                            if (endPointAccurances.ContainsKey(i))
+                            {
+                                endPointAccurances[i] = j;
+                            }
+                            else
+                            {
+                                endPointAccurances.Add(i, j);
+                            }
+
+                        }
+                        if (i != 0 && i != array.Length - 1)
+                        {
+                            if ((array[i + 1][j] != numberToLookFor) && ((j - 1 > 0 && array[i + 1][j - 1] != numberToLookFor)) && (array[i + 1][j + 1] != numberToLookFor) &&
+                                (array[i][j + 1] != numberToLookFor) && ((j - 1 > 0 && array[i][j - 1] != numberToLookFor))
+                                && (i - 1 > 0 && array[i - 1][j + 1] != numberToLookFor) && ((i - 1 > 0 && j - 1 > 0) && array[i - 1][j - 1] != numberToLookFor) && (i - 1 > 0 && j - 1 > 0 && array[i - 1][j - 1] != numberToLookFor))
+                            {
+                                flag = true;
+                                break;
+                            }
+                        }
+                        else
+                        {//either top or either corner element..
+                            if (i == 0)
+                            {
+                                if ((array[i + 1][j] != numberToLookFor) && (j + 1 < array[i].Length && array[i][j + 1] != numberToLookFor) && (j + 1 < array[i].Length && array[i + 1][j + 1] != numberToLookFor))
+                                {
+                                    flag = true;
+                                    break;
+                                }
+                            }
+                            else
+                            {
+                                if ((array[i - 1][j] != numberToLookFor) && (j != 0 && array[i - 1][j - 1] != numberToLookFor) && (j + 1 < array[i].Length && array[i][j + 1] != numberToLookFor) && (j + 1 < array[i].Length && array[i - 1][j + 1] != numberToLookFor))
+                                {
+                                    // to check at last row , next element .. previous row at same position , previous one with one less then same position, previous one with one more then same.
+                                    flag = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (flag == true)
+                    {
+                        break;
+                    }
+                }
+            }
+
+            if (flag == true)
+            {
+                for (int i = 0; i < array.Length; i++)
+                {
+                    for (int j = 0; j < array[i].Length; j++)
+                    {
+                        array[i][j] = numberToFill;
+                    }
+                }
+            }
+            else
+            {
+
+                // largest start x 
+                var firstPoint = pointAccurances.OrderByDescending(x => x.Key).ThenByDescending(x => x.Value).First().Key;
+                // smallest start x
+                var lastPoint = pointAccurances.OrderByDescending(x => x.Key).ThenByDescending(x => x.Value).Last().Key;
+                // removing points with such keys.
+                pointAccurances.Remove(firstPoint);
+                pointAccurances.Remove(lastPoint);
+
+                // remove first and last points from booth where key is first and last key in firstPoints.
+                foreach (var start in pointAccurances)
+                {
+                    for (int i = start.Value + 1; i < endPointAccurances[start.Key]; i++)
+                    {
+                        array[start.Key][i] = numberToFill;
+                    }
+                }
+            }
+
+        }
+
+
+        public static void PrintShape(int[][] array)
+        {
+            StringBuilder upperDash = new StringBuilder();
+            for (int j = 0; j < array[0].Length; j++)
+            {
+                upperDash.Append("--------------");
+            }
+
+
+            for (int i = 0; i < array.Length; i++)
+            {
+
+                StringBuilder stringBuilder = new StringBuilder();
+                //stringBuilder.Append("\t | \t");
+                //stringBuilder.Append(i);
+                //stringBuilder.Append("\t | \t");
+                for (int j = 0; j < array[i].Length - 1; j++)
+                {
+                    stringBuilder.Append(array[i][j]);
+                    stringBuilder.Append("\t | \t");
+                }
+                Console.WriteLine(upperDash.ToString());
+                Console.WriteLine(stringBuilder.ToString());
+            }
+            Console.WriteLine(upperDash.ToString());
+        }
+
+static void Main(string[] args)
+        {
+        
+            int[][] array = new int[8][];
+            for (int i = 0; i < 8; i++)
+            {
+                array[i] = new int[8];
+                for (int j = 0; j < array[i].Length; j++)
+                {
+                    array[i][j] = 1;
+                }
+            }
+            int tempEndRight = 0;
+            for (int i = 0; i < array[0].Length / 2; i++)
+            {
+                array[0][i] = 0;
+                tempEndRight = i;
+            }
+            // drawing line..
+            int tempENdBottom = 0;
+            for (int i = 0; i < array.Length / 2; i++)
+            {
+                array[i][0] = 0;
+                tempENdBottom = i;
+            }
+            for (int i = 0; i < array[tempENdBottom].Length / 2; i++)
+            {
+                array[tempENdBottom][i] = 0;
+            }
+            for (int i = 0; i < tempENdBottom; i++)
+            {
+                array[i][tempEndRight] = 0;
+            }
+
+            Console.WriteLine(tempENdBottom);
+            PrintShape(array);
+            //array[0][2] = 1;
+            //PrintShape(array);
+
+            FillShape(ref array, 0, 2);
+            Console.WriteLine("\n\n\n after filling \n\n\n");
+
+            PrintShape(array); 
+            Console.ReadLine();
+        }

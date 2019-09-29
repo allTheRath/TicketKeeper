@@ -260,6 +260,12 @@
     <Content Include="Views\Home\TicketDetails.cshtml" />
     <Content Include="Views\Home\AddComments.cshtml" />
     <Content Include="Views\Home\AddAttachment.cshtml" />
+    <Content Include="Views\Home\MyComments.cshtml" />
+    <Content Include="Views\Home\MyAttachments.cshtml" />
+    <Content Include="Views\Home\EditComment.cshtml" />
+    <Content Include="Views\Home\CommentDetails.cshtml" />
+    <Content Include="Views\Home\EditAttachment.cshtml" />
+    <Content Include="Views\Home\ViewHistory.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

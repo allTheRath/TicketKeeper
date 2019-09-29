@@ -467,6 +467,8 @@ namespace TicketKeeper.Controllers
             {
                 return RedirectToAction("Index");
             }
+            Ticket existingticket = db.Tickets.Find(ticketRef);
+            AddHistoryObjTODatabase(ticketRef, existingticket);
 
             TicketHandler.EditExistingTicket(ticketRef);
 
@@ -559,7 +561,7 @@ namespace TicketKeeper.Controllers
 
         [HttpPost, ActionName("AddAttachment")]
         [ValidateAntiForgeryToken]
-        public ActionResult AddAttachmentConfirm(int? id, HttpPostedFileBase File, string Discription)
+        public ActionResult AddAttachmentConfirm(int? id, HttpPostedFileBase file, string Discription)
         {
             if (id == null)
             {
@@ -596,12 +598,12 @@ namespace TicketKeeper.Controllers
                 ticketAttachment.Discription = Discription;
                 ticketAttachment.TicketId = t.Id;
 
-                string FileName = Path.GetFileName(File.FileName);
+                string FileName = Path.GetFileName(file.FileName);
                 //string fileExtention = Path.GetExtension(File.FileName);
 
                 ticketAttachment.FilePath = "~/AttachedFile" + FileName;
                 var path = Path.Combine(Server.MapPath("~/AttachedFile"), FileName);
-                File.SaveAs(path);
+                file.SaveAs(path);
                 if (ModelState.IsValid)
                 {
 
@@ -613,6 +615,261 @@ namespace TicketKeeper.Controllers
             }
             return RedirectToAction("Index");
         }
+
+        public ActionResult MyComments()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index");
+            }
+            List<TicketComments> ticketComments = TicketHandler.GetMyComments(User.Identity.GetUserId());
+            ticketComments.ForEach(comment =>
+            {
+                comment.UserId = db.Users.Find(comment.UserId).Email;
+            });
+            return View(ticketComments);
+        }
+
+        public ActionResult EditComment(int? id)
+        {
+            if (id == null || !User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index");
+            }
+            if (!TicketHandler.TicketCommentConfirmation(User.Identity.GetUserId(), Convert.ToInt32(id)))
+            {
+                return RedirectToAction("Index");
+            }
+            TicketComments ticketComment = db.TicketComments.Find(id);
+            ticketComment.UserId = db.Users.Find(ticketComment.UserId).Email;
+            return View(ticketComment);
+        }
+
+        [HttpPost, ActionName("EditComment")]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditCommentConfirm([Bind(Include = "Id,Comment")] TicketComments ticketComment)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index");
+
+            }
+            if (!TicketHandler.TicketCommentConfirmation(User.Identity.GetUserId(), Convert.ToInt32(ticketComment.Id)))
+            {
+                return RedirectToAction("Index");
+            }
+            TicketComments PreviousComments = db.TicketComments.Find(ticketComment.Id);
+            PreviousComments.Comment = ticketComment.Comment;
+            db.SaveChanges();
+            return RedirectToAction("MyComments");
+        }
+
+
+
+        public ActionResult CommentDetails(int? id)
+        {
+            if (id == null || !User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index");
+            }
+            if (!TicketHandler.TicketCommentConfirmation(User.Identity.GetUserId(), Convert.ToInt32(id)))
+            {
+                return RedirectToAction("Index");
+            }
+            TicketComments ticketComments = db.TicketComments.Find(id);
+            ticketComments.UserId = db.Users.Find(ticketComments.UserId).Email;
+            return View(ticketComments);
+        }
+
+        //public ActionResult DeleteComment(int? id)
+        //{
+        //    if (id == null || !User.Identity.IsAuthenticated)
+        //    {
+        //        return RedirectToAction("Index");
+        //    }
+        //    TicketComments ticketComments = db.TicketComments.Find(id);
+        //    ticketComments.UserId = db.Users.Find(ticketComments.UserId).Email;
+        //    return View();
+        //}
+
+        public ActionResult MyAttachments()
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index");
+            }
+            List<TicketAttachments> ticketAttachments = TicketHandler.GetMyAttachments(User.Identity.GetUserId());
+            ticketAttachments.ForEach(attachment =>
+            {
+                attachment.UserId = db.Users.Find(attachment.UserId).Email;
+
+            });
+            return View(ticketAttachments);
+        }
+        public ActionResult EditAttachment(int? id)
+        {
+            if (id == null || !User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index");
+            }
+            if (!TicketHandler.TicketAttachmentConfirmation(User.Identity.GetUserId(), Convert.ToInt32(id)))
+            {
+                return RedirectToAction("Index");
+            }
+            TicketAttachments ticketAttachments = db.TicketAttachments.Find(id);
+            ticketAttachments.UserId = db.Users.Find(ticketAttachments.UserId).Email;
+            return View(ticketAttachments);
+        }
+
+        [HttpPost, ActionName("EditAttachment")]
+        [ValidateAntiForgeryToken]
+        public ActionResult EditAttachmentConfirm([Bind(Include = "Id,Discription")] TicketAttachments ticketAttachment)
+        {
+            TicketAttachments attachments = db.TicketAttachments.Find(ticketAttachment.Id);
+            if (attachments == null)
+            {
+                return RedirectToAction("MyAttachments");
+            }
+            bool isAttachmentForRightUser = TicketHandler.TicketAttachmentConfirmation(User.Identity.GetUserId(), attachments.Id);
+            if (isAttachmentForRightUser == true)
+            {
+                attachments.Discription = ticketAttachment.Discription;
+                db.SaveChanges();
+            }
+            else
+            {
+                return RedirectToAction("MyAttachments");
+            }
+            return View();
+        }
+
+        public ActionResult AttachmentDetails(int? id)
+        {
+            if (id == null || !User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index");
+            }
+            if (!TicketHandler.TicketAttachmentConfirmation(User.Identity.GetUserId(), Convert.ToInt32(id)))
+            {
+                return RedirectToAction("Index");
+            }
+            TicketAttachments ticketAttachments = db.TicketAttachments.Find(id);
+            ticketAttachments.UserId = db.Users.Find(ticketAttachments.UserId).Email;
+            return View(ticketAttachments);
+        }
+
+        //public ActionResult DeleteAttachment(int? id)
+        //{
+        //    if (id == null || !User.Identity.IsAuthenticated)
+        //    {
+        //        return RedirectToAction("Index");
+        //    }
+        //    if (!TicketHandler.TicketAttachmentConfirmation(User.Identity.GetUserId(), Convert.ToInt32(id)))
+        //    {
+        //        return RedirectToAction("Index");
+        //    }
+        //    TicketAttachments attachments = db.TicketAttachments.Find(id);
+        //    db.TicketAttachments.Remove(attachments);
+        //    db.SaveChanges();
+        //    return View();
+        //}
+
+        public ActionResult ViewHistory(int? id)
+        {
+            if (id == null)
+            {
+                return RedirectToAction("Index");
+            }
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index");
+            }
+            bool flag = false;
+            string userId = User.Identity.GetUserId();
+            int ticketID = Convert.ToInt32(id);
+            if (User.IsInRole("Admin"))
+            {
+                flag = true;
+            }
+            else if (User.IsInRole("ProjectManager"))
+            {
+                if (TicketHandler.IsTicketBelongToProjectManager(userId, ticketID))
+                {
+                    flag = true;
+                }
+            }
+            else if (User.IsInRole("Developer"))
+            {
+                if (TicketHandler.IsTicketBelongToDeveloper(userId, ticketID))
+                {
+                    flag = true;
+                }
+            }
+            else if (User.IsInRole("Submitter"))
+            {
+                if (TicketHandler.IsTicketBelongToSubmitter(userId, ticketID))
+                {
+                    flag = true;
+                }
+            }
+            if (flag == true)
+            {
+                List<TicketHistory> ticketHistories = db.TicketHistories.Where(x => x.TicketId == id).ToList();
+                ticketHistories.ForEach(history =>
+                {
+                    history.UserId = db.Users.Find(history.UserId).Email;
+                });
+                return View(ticketHistories);
+            }
+            else
+            {
+                return View(new List<TicketHistory>());
+            }
+        }
+
+        private protected void CreateTicketHistory(int ticketId, string userId, string newValue, string oldValue, string propertyName)
+        {
+            TicketHistory ticketHistory = new TicketHistory();
+            ticketHistory.TicketId = ticketId;
+            ticketHistory.UserId = db.Users.Find(userId).Email;
+            ticketHistory.NewValue = newValue;
+            ticketHistory.OldValue = oldValue;
+            ticketHistory.Property = propertyName;
+            ticketHistory.Changed = DateTime.Now;
+            TicketHandler.AddHistoryOfTicket(ticketHistory);
+
+        }
+
+        private protected void AddHistoryObjTODatabase(Ticket newTicket, Ticket oldTicket)
+        {
+            if (oldTicket.Title != newTicket.Title)
+            {
+                CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), newTicket.Title, oldTicket.Title, "Title");
+            }
+            if (oldTicket.Discription != newTicket.Discription)
+            {
+                CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), newTicket.Discription, oldTicket.Discription, "Discription ");
+            }
+            if (oldTicket.TicketTypeId != newTicket.TicketTypeId)
+            {
+                CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), newTicket.TicketTypeId.ToString(), oldTicket.TicketTypeId.ToString(), "Ticket Type");
+            }
+            if (oldTicket.TicketPriorityId != newTicket.TicketPriorityId)
+            {
+                CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), newTicket.TicketPriorityId.ToString(), oldTicket.TicketPriorityId.ToString(), "Ticket Priority");
+            }
+            if (oldTicket.TicketStatusId != newTicket.TicketStatusId)
+            {
+                CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), newTicket.TicketStatusId.ToString(), oldTicket.TicketStatusId.ToString(), "Ticket Status");
+            }
+            if (oldTicket.AssignedToUserId != newTicket.AssignedToUserId)
+            {
+                CreateTicketHistory(newTicket.Id, User.Identity.GetUserId(), newTicket.AssignedToUserId, oldTicket.AssignedToUserId, "Assigned User");
+            }
+        }
+
+
+
 
     }
 }

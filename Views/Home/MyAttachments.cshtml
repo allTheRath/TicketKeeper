@@ -1,0 +1,52 @@
+﻿@model IEnumerable<TicketKeeper.Models.TicketAttachments>
+
+<h5>
+    @Html.ActionLink("Create New", "MyTickets")
+</h5>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Ticket.Title)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FilePath)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Discription)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Created)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UserId)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Ticket.Title)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FilePath)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Discription)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Created)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserId)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "EditAttachment", new { id = item.Id }) |
+                @Html.ActionLink("Details", "AttachmentDetails", new { id = item.Id }) 
+                @*@Html.ActionLink("Delete", "DeleteAttachment", new { id = item.Id })*@
+            </td>
+        </tr>
+    }
+
+</table>

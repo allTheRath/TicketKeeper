@@ -418,6 +418,318 @@ namespace TicketKeeper.Models
 
         }
 
+        public bool TicketCommentConfirmation(string userId, int commentId)
+        {
+            var roles = RoleHandler.GetUserRoles(userId);
+            try
+            {
+                if (roles.Count == 1)
+                {
+                    if (roles[0] == "Admin")
+                    {
+                        return true;
+                    }
+                    else if (roles[0] == "ProjectManager")
+                    {
+                        if (db.Projects.Find(db.Tickets.Find(db.TicketComments.Find(commentId).TicketId).ProjectId).ApplicationUserId == userId)
+                        {
+                            return true;
+                        }
+                    }
+                    else if (roles[0] == "Developer")
+                    {
+                        if (db.Tickets.Find(db.TicketComments.Find(commentId).TicketId).AssignedToUserId == userId)
+                        {
+                            return true;
+                        }
+                    }
+                    else if (roles[0] == "Submitter")
+                    {
+                        if (db.Projects.Find(db.Tickets.Find(db.TicketComments.Find(commentId).TicketId).ProjectId).ApplicationUserId == userId)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                else if (roles.Count > 1)
+                {
+                    bool flag = false;
+                    roles.ForEach(role =>
+                    {
+                        if (role == "Admin")
+                        {
+                            flag = true;
+
+                        }
+                        else if (role == "ProjectManager")
+                        {
+                            if (db.Projects.Find(db.Tickets.Find(db.TicketComments.Find(commentId).TicketId).ProjectId).ApplicationUserId == userId)
+                            {
+                                flag = true;
+                            }
+                        }
+                        else if (role == "Developer")
+                        {
+                            if (db.Tickets.Find(db.TicketComments.Find(commentId).TicketId).AssignedToUserId == userId)
+                            {
+                                flag = true;
+                            }
+                        }
+                        else if (role == "Submitter")
+                        {
+                            flag = true;
+                        }
+
+                    });
+                    if(flag)
+                    {
+                        return true;
+                    }
+
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return false;
+        }
+
+        public bool TicketAttachmentConfirmation(string userId, int attachmentId)
+        {
+            var roles = RoleHandler.GetUserRoles(userId);
+            try
+            {
+                if (roles.Count == 1)
+                {
+                    if (roles[0] == "Admin")
+                    {
+                        return true;
+                    }
+                    else if (roles[0] == "ProjectManager")
+                    {
+                        if (db.Projects.Find(db.Tickets.Find(db.TicketAttachments.Find(attachmentId).TicketId).ProjectId).ApplicationUserId == userId)
+                        {
+                            return true;
+                        }
+                    }
+                    else if (roles[0] == "Developer")
+                    {
+                        if (db.Tickets.Find(db.TicketAttachments.Find(attachmentId).TicketId).AssignedToUserId == userId)
+                        {
+                            return true;
+                        }
+                    }
+                    else if (roles[0] == "Submitter")
+                    {
+                        if (db.Projects.Find(db.Tickets.Find(db.TicketAttachments.Find(attachmentId).TicketId).ProjectId).ApplicationUserId == userId)
+                        {
+                            return true;
+                        }
+                    }
+                }
+                else if (roles.Count > 1)
+                {
+                    bool flag = false;
+                    roles.ForEach(role =>
+                    {
+                        if (role == "Admin")
+                        {
+                            flag = true;
+
+                        }
+                        else if (role == "ProjectManager")
+                        {
+                            if (db.Projects.Find(db.Tickets.Find(db.TicketAttachments.Find(attachmentId).TicketId).ProjectId).ApplicationUserId == userId)
+                            {
+                                flag = true;
+                            }
+                        }
+                        else if (role == "Developer")
+                        {
+                            if (db.Tickets.Find(db.TicketAttachments.Find(attachmentId).TicketId).AssignedToUserId == userId)
+                            {
+                                flag = true;
+                            }
+                        }
+                        else if (role == "Submitter")
+                        {
+                            flag = true;
+                        }
+
+                    });
+                    if (flag)
+                    {
+                        return true;
+                    }
+
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+            return false;
+        }
+
+        public List<TicketComments> GetMyComments(string userId)
+        {
+            var user = db.Users.Find(userId);
+            var roles = RoleHandler.GetUserRoles(user.Id);
+            var listOfComments = new List<TicketComments>();
+            if (roles.Count == 1)
+            {
+                if (roles[0] == "Admin")
+                {
+                    db.Tickets.ToList().Select(x => x.Id).ToList().ForEach(ticketId =>
+                    {
+                        listOfComments.AddRange(db.TicketComments.Where(x => x.TicketId == ticketId).ToList());
+                    });
+                }
+                else if (roles[0] == "ProjectManager")
+                {
+                    db.Tickets.ToList().Where(x => db.Projects.Find(x.ProjectId).ApplicationUserId == userId).Select(x => x.Id).ToList().ForEach(ticketId =>
+                    {
+                        listOfComments.AddRange(db.TicketComments.Where(x => x.TicketId == ticketId).ToList());
+                    });
+                }
+                else if (roles[0] == "Developer")
+                {
+                    db.Tickets.ToList().Where(x => x.AssignedToUserId == userId).Select(x => x.Id).ToList().ForEach(ticketId =>
+                    {
+                        listOfComments.AddRange(db.TicketComments.Where(x => x.TicketId == ticketId).ToList());
+                    });
+                }
+                else if (roles[0] == "Submitter")
+                {
+                    db.Tickets.ToList().Where(x => x.OwenerUserId == userId).Select(x => x.Id).ToList().ForEach(ticketId =>
+                    {
+                        listOfComments.AddRange(db.TicketComments.Where(x => x.TicketId == ticketId).ToList());
+                    });
+                }
+            }
+            else if (roles.Count > 1)
+            {
+                roles.ForEach(role =>
+                {
+                    if (role == "Admin")
+                    {
+                        db.Tickets.ToList().Select(x => x.Id).ToList().ForEach(ticketId =>
+                        {
+                            listOfComments.AddRange(db.TicketComments.Where(x => x.TicketId == ticketId).ToList());
+                        });
+                    }
+                    else if (role == "ProjectManager")
+                    {
+                        db.Tickets.ToList().Where(x => db.Projects.Find(x.ProjectId).ApplicationUserId == userId).Select(x => x.Id).ToList().ForEach(ticketId =>
+                        {
+                            listOfComments.AddRange(db.TicketComments.Where(x => x.TicketId == ticketId).ToList());
+                        });
+                    }
+                    else if (role == "Developer")
+                    {
+                        db.Tickets.ToList().Where(x => x.AssignedToUserId == userId).Select(x => x.Id).ToList().ForEach(ticketId =>
+                        {
+                            listOfComments.AddRange(db.TicketComments.Where(x => x.TicketId == ticketId).ToList());
+                        });
+                    }
+                    else if (role == "Submitter")
+                    {
+                        db.Tickets.ToList().Where(x => x.OwenerUserId == userId).Select(x => x.Id).ToList().ForEach(ticketId =>
+                        {
+                            listOfComments.AddRange(db.TicketComments.Where(x => x.TicketId == ticketId).ToList());
+                        });
+                    }
+
+                });
+
+            }
+            else
+            {
+                return listOfComments;
+            }
+            return listOfComments;
+        }
+
+
+        public List<TicketAttachments> GetMyAttachments(string userId)
+        {
+            var user = db.Users.Find(userId);
+            var roles = RoleHandler.GetUserRoles(user.Id);
+            var listOfAttachments = new List<TicketAttachments>();
+            if (roles.Count == 1)
+            {
+                if (roles[0] == "Admin")
+                {
+                    db.Tickets.ToList().Select(x => x.Id).ToList().ForEach(ticketId =>
+                    {
+                        listOfAttachments.AddRange(db.TicketAttachments.Where(x => x.TicketId == ticketId).ToList());
+                    });
+                }
+                else if (roles[0] == "ProjectManager")
+                {
+                    db.Tickets.ToList().Where(x => db.Projects.Find(x.ProjectId).ApplicationUserId == userId).Select(x => x.Id).ToList().ForEach(ticketId =>
+                    {
+                        listOfAttachments.AddRange(db.TicketAttachments.Where(x => x.TicketId == ticketId).ToList());
+                    });
+                }
+                else if (roles[0] == "Developer")
+                {
+                    db.Tickets.ToList().Where(x => x.AssignedToUserId == userId).Select(x => x.Id).ToList().ForEach(ticketId =>
+                    {
+                        listOfAttachments.AddRange(db.TicketAttachments.Where(x => x.TicketId == ticketId).ToList());
+                    });
+                }
+                else if (roles[0] == "Submitter")
+                {
+                    db.Tickets.ToList().Where(x => x.OwenerUserId == userId).Select(x => x.Id).ToList().ForEach(ticketId =>
+                    {
+                        listOfAttachments.AddRange(db.TicketAttachments.Where(x => x.TicketId == ticketId).ToList());
+                    });
+                }
+            }
+            else if (roles.Count > 1)
+            {
+                roles.ForEach(role =>
+                {
+                    if (role == "Admin")
+                    {
+                        db.Tickets.ToList().Select(x => x.Id).ToList().ForEach(ticketId =>
+                        {
+                            listOfAttachments.AddRange(db.TicketAttachments.Where(x => x.TicketId == ticketId).ToList());
+                        });
+                    }
+                    else if (role == "ProjectManager")
+                    {
+                        db.Tickets.ToList().Where(x => db.Projects.Find(x.ProjectId).ApplicationUserId == userId).Select(x => x.Id).ToList().ForEach(ticketId =>
+                        {
+                            listOfAttachments.AddRange(db.TicketAttachments.Where(x => x.TicketId == ticketId).ToList());
+                        });
+                    }
+                    else if (role == "Developer")
+                    {
+                        db.Tickets.ToList().Where(x => x.AssignedToUserId == userId).Select(x => x.Id).ToList().ForEach(ticketId =>
+                        {
+                            listOfAttachments.AddRange(db.TicketAttachments.Where(x => x.TicketId == ticketId).ToList());
+                        });
+                    }
+                    else if (role == "Submitter")
+                    {
+                        db.Tickets.ToList().Where(x => x.OwenerUserId == userId).Select(x => x.Id).ToList().ForEach(ticketId =>
+                        {
+                            listOfAttachments.AddRange(db.TicketAttachments.Where(x => x.TicketId == ticketId).ToList());
+                        });
+                    }
+
+                });
+
+            }
+            else
+            {
+                return listOfAttachments;
+            }
+            return listOfAttachments;
+        }
 
         //Project Managers must be able to add Attachments to tickets belonging to Projects to which they are assigned
         public void AddAttachmentByProjectManager(TicketAttachments attachment, string projectManagerId)
@@ -532,6 +844,8 @@ namespace TicketKeeper.Models
 
             return result;
         }
+
+
 
 
 
