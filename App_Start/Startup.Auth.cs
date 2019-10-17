@@ -45,23 +45,7 @@ namespace TicketKeeper
             // This is similar to the RememberMe option when you log in.
             app.UseTwoFactorRememberBrowserCookie(DefaultAuthenticationTypes.TwoFactorRememberBrowserCookie);
 
-            app.UseMicrosoftAccountAuthentication(
-            clientId: "e6d0982e-4b34-4080-8628-95d6fe34fd54",
-            clientSecret: "CFf-ocjVhq=HJ0LHPW9Lz1xNAe3HcB/.");
-
-            //app.UseTwitterAuthentication(
-            //   consumerKey: "q3xw0bYt2mVbEsTkQlFqlIGMf ",
-            //   consumerSecret: "BgHlF2TwwRQgZqsd4l9zpJU4Ckn04L9TpHGaiWmLerlDpZxtxc");
-            //@Jay97920789
-            app.UseFacebookAuthentication(
-               appId: "3242579559115710",
-               appSecret: "154b4eabad5453066fc07072b8dd84fb");
-
-            app.UseGoogleAuthentication(new GoogleOAuth2AuthenticationOptions()
-            {
-                ClientId = "1065118455137-hihbrfg8f30k2ev9qh5qtbiep5l8thd4.apps.googleusercontent.com",
-                ClientSecret = "vyTA4Bh8Zp-3iukms2Zg20MO"
-            });
+   
         }
     }
 }
