@@ -1,6 +1,6 @@
 # Ticket Keeper
 
-This project is build on C# .Net MVC.
+This project is built on C# .Net MVC.
 
 ## Roles: Admin, Project Manager, Submitter, Developer
 
@@ -10,8 +10,8 @@ A submitter is responsible for adding tickets.
 
 A project manager is responsible for assigning Developer with ticket.
 
-A developer is suppose to update each ticket with given task.
+A developer is supposed to update each ticket with given task.
 
-A admin is responsible for managing user accounts and adding deleating all types of users.
+An admin is responsible for managing user accounts and adding deleting all types of users.
 
 ## Currently this project supports individual account login.
