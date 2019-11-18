@@ -4,7 +4,7 @@ This project is built on C# .Net MVC.
 
 ## Roles: Admin, Project Manager, Submitter, Developer
 
-## This project tries to manage day to day tickets for certain user roles.
+## This project tries to manage/ update day to day tickets for certain user roles.
 
 A submitter is responsible for adding tickets.
 
